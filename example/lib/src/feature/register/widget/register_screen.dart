@@ -79,7 +79,7 @@ class _FormState extends State<_Form> {
 }
 
 class _InputLoader extends StatelessWidget {
-  const _InputLoader({super.key});
+  const _InputLoader();
 
   @override
   Widget build(BuildContext context) {
