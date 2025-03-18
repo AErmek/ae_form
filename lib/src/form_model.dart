@@ -97,8 +97,13 @@ enum ValidateTrigger {
 }
 
 enum ValidateLevel {
-  any({ValidateTrigger.reactive, ValidateTrigger.submit}),
-  onSubmit({ValidateTrigger.submit});
+  any({
+    ValidateTrigger.reactive,
+    ValidateTrigger.submit,
+  }),
+  onSubmit({
+    ValidateTrigger.submit,
+  });
 
   final Set<ValidateTrigger> triggers;
 
