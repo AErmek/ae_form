@@ -1,92 +1,100 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 @immutable
 sealed class FormModelStatus<E extends Object> {
   const FormModelStatus();
 
-  const factory FormModelStatus.pureLoading() = _Pure._inProcess;
-  const factory FormModelStatus.pure() = _Pure._;
+  const factory FormModelStatus.pureLoading() = _PureLoading<E>;
+  const factory FormModelStatus.pure() = _Pure<E>;
 
-  const factory FormModelStatus.dirtyEditing() = _Dirty._inProcess;
-  const factory FormModelStatus.dirty() = _Dirty._;
+  const factory FormModelStatus.dirtyEditing() = _DirtyEditing<E>;
+  const factory FormModelStatus.dirty() = _Dirty<E>;
 
-  const factory FormModelStatus.valid() = _Valid._;
+  const factory FormModelStatus.valid() = _Valid<E>;
 
-  factory FormModelStatus.failure(E error) => FailureFormModelStatus._([error]);
-  factory FormModelStatus.failures(Iterable<E> errors) => FailureFormModelStatus._(errors);
+  factory FormModelStatus.failure(E error) => FailureFormModelStatus<E>([error]);
+  factory FormModelStatus.failures(Iterable<E> errors) => FailureFormModelStatus<E>(errors);
 
-  bool get isEnabled;
+  bool get isEnabled => switch (this) {
+        _PureLoading<E>() => false,
+        _ => true,
+      };
 
   bool get isPure => switch (this) {
-    _Pure._ => true,
-    _Pure._inProcess => true,
-    _ => false,
-  };
+        _Pure<E>() => true,
+        _PureLoading<E>() => true,
+        _ => false,
+      };
 
   bool get isDirty => switch (this) {
-    _Dirty._ => true,
-    _Dirty._inProcess => true,
-    _ => false,
-  };
+        _Dirty<E>() => true,
+        _DirtyEditing<E>() => true,
+        _ => false,
+      };
 
-  bool get isProcessing;
+  bool get isValid => switch (this) {
+        _Valid<E>() => true,
+        _ => false,
+      };
+
+  bool get isProcessing => switch (this) {
+        _PureLoading<E>() => true,
+        _DirtyEditing<E>() => true,
+        _ => false,
+      };
 
   @override
-  int get hashCode => Object.hash(runtimeType, isPure, isProcessing, isDirty);
+  int get hashCode => Object.hash(runtimeType, isPure, isProcessing, isDirty, isEnabled);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other.runtimeType == runtimeType &&
-          other is FormModelStatus &&
+          other is FormModelStatus<E> &&
           other.isPure == isPure &&
           other.isDirty == isDirty &&
-          other.isProcessing == isProcessing);
+          other.isProcessing == isProcessing &&
+          other.isEnabled == isEnabled);
 }
 
 class _Pure<E extends Object> extends FormModelStatus<E> {
-  const _Pure._({this.processing = false});
-  const _Pure._inProcess({this.processing = true});
+  const _Pure();
+}
 
-  final bool processing;
-
-  @override
-  bool get isProcessing => processing;
-
-  @override
-  bool get isEnabled => !processing;
+class _PureLoading<E extends Object> extends FormModelStatus<E> {
+  const _PureLoading();
 }
 
 class _Dirty<E extends Object> extends FormModelStatus<E> {
-  const _Dirty._({this.processing = false});
-  const _Dirty._inProcess({this.processing = true});
+  const _Dirty();
+}
 
-  final bool processing;
-
-  @override
-  bool get isProcessing => processing;
-
-  @override
-  bool get isEnabled => true;
+class _DirtyEditing<E extends Object> extends FormModelStatus<E> {
+  const _DirtyEditing();
 }
 
 class _Valid<E extends Object> extends FormModelStatus<E> {
-  const _Valid._();
-
-  @override
-  bool get isProcessing => false;
-
-  @override
-  bool get isEnabled => true;
+  const _Valid();
 }
 
 class FailureFormModelStatus<E extends Object> extends FormModelStatus<E> {
-  const FailureFormModelStatus._(this.errors);
+  const FailureFormModelStatus(this.errors);
 
   final Iterable<E> errors;
-  @override
-  bool get isProcessing => false;
 
   @override
-  bool get isEnabled => true;
+  int get hashCode =>
+      Object.hash(runtimeType, isPure, isProcessing, isDirty, isEnabled, const IterableEquality().hash(errors));
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is FailureFormModelStatus<E> &&
+          other.isPure == isPure &&
+          other.isDirty == isDirty &&
+          other.isProcessing == isProcessing &&
+          other.isEnabled == isEnabled &&
+          const IterableEquality().equals(errors, other.errors));
 }

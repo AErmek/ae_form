@@ -1,19 +1,26 @@
+import 'package:ae_form/ae_form.dart';
+
 abstract interface class IFormModelValidator<T extends Object?, E extends Object> {
   E? validate(T value);
   bool get isCritical;
+  ValidateLevel get level;
 }
 
 abstract interface class IFormModelValidatorSet<T extends Object?, E extends Object> {
-  Iterable<E> validate(T value);
+  Iterable<E> validate(T value, {required ValidateTrigger trigger});
 }
 
 abstract base class FormModelValidatorSet<T extends Object?, E extends Object> implements IFormModelValidatorSet<T, E> {
   List<IFormModelValidator<T, E>> get validators;
 
   @override
-  Iterable<E> validate(T value) sync* {
+  Iterable<E> validate(T value, {required ValidateTrigger trigger}) sync* {
     for (var validator in validators) {
-      var error = validator.validate(value);
+      if (!validator.level.supportTrigger(trigger)) {
+        continue;
+      }
+
+      final error = validator.validate(value);
       if (error != null) {
         yield error;
 
@@ -64,49 +71,5 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
 //       }
 //     }
 //     return ifError;
-//   }
-// }
-
-//TODO Examples
-// final class NameValidatorSet extends FormModelValidatorSet<String, String> {
-//   @override
-//   List<IFormModelValidator<String, String>> validators = [RequiredValidator()];
-// }
-
-// final class ConfirmPasswordValidatorSet extends FormModelValidatorSet<String, String> {
-//   ConfirmPasswordValidatorSet({required this.originValueGetter});
-
-//   final String Function() originValueGetter;
-
-//   @override
-//   late List<IFormModelValidator<String, String>> validators = [
-//     RequiredValidator(),
-//     SameValueValidator(originValueGetter: originValueGetter),
-//   ];
-// }
-
-// final class RequiredValidator implements IFormModelValidator<String, String> {
-//   RequiredValidator({this.isCritical = true});
-
-//   @override
-//   final bool isCritical;
-
-//   @override
-//   String? validate(String value) {
-//     return value.isEmpty ? 'Required' : null;
-//   }
-// }
-
-// final class SameValueValidator implements IFormModelValidator<String, String> {
-//   SameValueValidator({this.isCritical = true, required this.originValueGetter});
-
-//   final String Function() originValueGetter;
-
-//   @override
-//   final bool isCritical;
-
-//   @override
-//   String? validate(String value) {
-//     return value == originValueGetter.call() ? null : 'Not same value';
 //   }
 // }
