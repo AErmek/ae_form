@@ -29,7 +29,7 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
 
   @override
   Iterable<E> validate(T value, {required ValidateTrigger trigger}) sync* {
-    for (var validator in validators) {
+    for (final validator in validators) {
       final error = validator.validateWithTrigger(value, trigger);
       if (error != null) {
         yield error;
@@ -43,9 +43,8 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
 }
 
 final class SingleValidatorSet<T extends Object?, E extends Object> extends FormModelValidatorSet<T, E> {
-  final IFormModelValidator<T, E> validator;
-
   SingleValidatorSet(this.validator);
+  final IFormModelValidator<T, E> validator;
 
   @override
   List<IFormModelValidator<T, E>> get validators => [validator];

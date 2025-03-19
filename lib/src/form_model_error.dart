@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 
+@immutable
 sealed class FormModelError {
   const FormModelError();
 
@@ -10,24 +12,25 @@ sealed class FormModelError {
 }
 
 class LocalizedFormModelError extends FormModelError {
-  final String key;
-  final Map<String, dynamic> arguments;
-
   const LocalizedFormModelError({required this.key, this.arguments = const {}});
+  final Map<String, dynamic> arguments;
+  final String key;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is LocalizedFormModelError && key == other.key && const MapEquality().equals(arguments, other.arguments));
+      (other is LocalizedFormModelError &&
+          key == other.key &&
+          const MapEquality<String, dynamic>().equals(arguments, other.arguments));
 
   @override
-  int get hashCode => Object.hash(key, const MapEquality().hash(arguments));
+  int get hashCode => Object.hash(key, const MapEquality<String, dynamic>().hash(arguments));
 }
 
 class StringFormModelError extends FormModelError {
-  final String message;
-
   const StringFormModelError(this.message);
+
+  final String message;
 
   @override
   bool operator ==(Object other) =>
@@ -38,9 +41,9 @@ class StringFormModelError extends FormModelError {
 }
 
 class ObjectFormModelError extends FormModelError {
-  final Object data;
-
   const ObjectFormModelError(this.data);
+
+  final Object data;
 
   @override
   bool operator ==(Object other) => identical(this, other) || (other is ObjectFormModelError && data == other.data);

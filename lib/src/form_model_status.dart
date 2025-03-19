@@ -79,7 +79,7 @@ class FailureFormModelStatus<E extends Object> extends FormModelStatus<E> {
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, isPure, isProcessing, isDirty, isEnabled, const IterableEquality().hash(errors));
+      Object.hash(runtimeType, isPure, isProcessing, isDirty, isEnabled, IterableEquality<E>().hash(errors));
 
   @override
   bool operator ==(Object other) =>
@@ -90,5 +90,5 @@ class FailureFormModelStatus<E extends Object> extends FormModelStatus<E> {
           other.isDirty == isDirty &&
           other.isProcessing == isProcessing &&
           other.isEnabled == isEnabled &&
-          const IterableEquality().equals(errors, other.errors));
+          IterableEquality<E>().equals(errors, other.errors));
 }

@@ -13,14 +13,15 @@ abstract interface class IFormModel<T extends Object?, E extends Object> {
   IFormModel<T, E> reset({ValueGetter<T>? value, FormModelStatus<E> status = const FormModelStatus.pure()});
 }
 
+@immutable
 class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E> {
+  const FormModel(T initialValue, {this.status = const FormModelStatus.pure()}) : value = initialValue;
+
   @override
   final T value;
 
   @override
   final FormModelStatus<E> status;
-
-  const FormModel(T initialValue, {this.status = const FormModelStatus.pure()}) : value = initialValue;
 
   @override
   FormModel<T, E> reset({ValueGetter<T>? value, FormModelStatus<E> status = const FormModelStatus.pure()}) =>
@@ -41,13 +42,9 @@ class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E>
   int get hashCode => Object.hash(value, status);
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is FormModel<T, E> &&
-            other.value == value &&
-            other.status == status);
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType && other is FormModel<T, E> && other.value == value && other.status == status);
 }
 
 extension FormModelX<T extends Object?, E extends Object> on FormModel<T, E> {
@@ -61,9 +58,8 @@ extension FormModelX<T extends Object?, E extends Object> on FormModel<T, E> {
     return validateResult(errors, okStatus: okStatus);
   }
 
-  FormModel<T, E> validateResult(Iterable<E> errors, {FormModelStatus<E>? okStatus}) {
-    return copyWith(status: errors.isEmpty ? okStatus : FormModelStatus<E>.failures(errors));
-  }
+  FormModel<T, E> validateResult(Iterable<E> errors, {FormModelStatus<E>? okStatus}) =>
+      copyWith(status: errors.isEmpty ? okStatus : FormModelStatus<E>.failures(errors));
 }
 
 enum ValidateTrigger {
@@ -80,9 +76,9 @@ enum ValidationLevel {
     ValidateTrigger.onSubmit,
   });
 
-  final Set<ValidateTrigger> triggers;
-
   const ValidationLevel(this.triggers);
+
+  final Set<ValidateTrigger> triggers;
 
   bool supportTrigger(ValidateTrigger trigger) => triggers.contains(trigger);
 }

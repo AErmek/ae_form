@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 class RegisterFormNotifier extends ChangeNotifier {
   RegisterFormNotifier() {
-    username = FormInput<String>('');
-    password = FormInput<String>('');
-    confirmPassword = FormInput<String>('');
+    username = const FormInput<String>('');
+    password = const FormInput<String>('');
+    confirmPassword = const FormInput<String>('');
     _confirmPasswordValidator = RegisterConfirmPasswordValidatorSet(originValueGetter: () => password.value);
   }
 
@@ -34,13 +34,13 @@ class RegisterFormNotifier extends ChangeNotifier {
 
     final rv = await _validateUserNameInApi(value);
 
-    username = username.validateResult(rv, okStatus: FormModelStatus.dirty());
+    username = username.validateResult(rv, okStatus: const FormModelStatus.dirty());
 
     notifyListeners();
   }
 
   Future<List<FormModelError>> _validateUserNameInApi(String value) async {
-    await Future.delayed(Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     return username.value == 'user' ? [FormModelError.string('$value already exists')] : [];
   }
 

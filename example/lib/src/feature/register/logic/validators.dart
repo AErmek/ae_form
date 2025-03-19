@@ -32,13 +32,11 @@ final class RequiredValidator implements IFormModelValidator<String, FormInputEr
   final ValidationLevel level;
 
   @override
-  FormInputError? validate(String value) {
-    return value.isEmpty ? FormInputError.localized(key: 'required') : null;
-  }
+  FormInputError? validate(String value) => value.isEmpty ? const FormInputError.localized(key: 'required') : null;
 }
 
 final class SameValueValidator implements IFormModelValidator<String, FormInputError> {
-  SameValueValidator({this.isCritical = true, required this.originValueGetter, this.level = ValidationLevel.onSubmit});
+  SameValueValidator({required this.originValueGetter, this.isCritical = true, this.level = ValidationLevel.onSubmit});
 
   final String Function() originValueGetter;
 
@@ -49,7 +47,6 @@ final class SameValueValidator implements IFormModelValidator<String, FormInputE
   final ValidationLevel level;
 
   @override
-  FormInputError? validate(String value) {
-    return value == originValueGetter.call() ? null : FormInputError.localized(key: 'not_same_value');
-  }
+  FormInputError? validate(String value) =>
+      value == originValueGetter.call() ? null : const FormInputError.localized(key: 'not_same_value');
 }
