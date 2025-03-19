@@ -11,8 +11,7 @@ sealed class FormModelStatus<E extends Object> {
   const factory FormModelStatus.dirtyEditing() = _DirtyEditing<E>;
   const factory FormModelStatus.dirty() = _Dirty<E>;
 
-  factory FormModelStatus.failure(E error) => FailureFormModelStatus<E>([error]);
-  factory FormModelStatus.failures(Iterable<E> errors) => FailureFormModelStatus<E>(errors);
+  const factory FormModelStatus.failures(Iterable<E> errors) = FailureFormModelStatus<E>;
 
   bool get isEnabled => switch (this) {
         _PureLoading<E>() => false,
@@ -56,20 +55,20 @@ sealed class FormModelStatus<E extends Object> {
           other.isEnabled == isEnabled);
 }
 
-class _Pure<E extends Object> extends FormModelStatus<E> {
-  const _Pure();
-}
-
 class _PureLoading<E extends Object> extends FormModelStatus<E> {
   const _PureLoading();
 }
 
-class _Dirty<E extends Object> extends FormModelStatus<E> {
-  const _Dirty();
+class _Pure<E extends Object> extends FormModelStatus<E> {
+  const _Pure();
 }
 
 class _DirtyEditing<E extends Object> extends FormModelStatus<E> {
   const _DirtyEditing();
+}
+
+class _Dirty<E extends Object> extends FormModelStatus<E> {
+  const _Dirty();
 }
 
 class FailureFormModelStatus<E extends Object> extends FormModelStatus<E> {

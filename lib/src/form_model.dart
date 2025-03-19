@@ -8,8 +8,6 @@ abstract interface class IFormModel<T extends Object?, E extends Object> {
 
   IFormModel<T, E> set(T value, {FormModelStatus<E> status = const FormModelStatus.dirty()});
 
-  IFormModel<T, E> setFailure(E error);
-
   IFormModel<T, E> reset({ValueGetter<T>? value, FormModelStatus<E> status = const FormModelStatus.pure()});
 }
 
@@ -30,9 +28,6 @@ class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E>
   @override
   FormModel<T, E> set(T value, {FormModelStatus<E> status = const FormModelStatus.dirty()}) =>
       copyWith(status: status, value: () => value);
-
-  @override
-  FormModel<T, E> setFailure(E error) => copyWith(status: FormModelStatus<E>.failure(error));
 
   @protected
   FormModel<T, E> copyWith({ValueGetter<T>? value, FormModelStatus<E>? status}) =>
