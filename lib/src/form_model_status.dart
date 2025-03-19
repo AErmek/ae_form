@@ -11,8 +11,6 @@ sealed class FormModelStatus<E extends Object> {
   const factory FormModelStatus.dirtyEditing() = _DirtyEditing<E>;
   const factory FormModelStatus.dirty() = _Dirty<E>;
 
-  // const factory FormModelStatus.valid() = _Valid<E>;
-
   factory FormModelStatus.failure(E error) => FailureFormModelStatus<E>([error]);
   factory FormModelStatus.failures(Iterable<E> errors) => FailureFormModelStatus<E>(errors);
 
@@ -73,10 +71,6 @@ class _Dirty<E extends Object> extends FormModelStatus<E> {
 class _DirtyEditing<E extends Object> extends FormModelStatus<E> {
   const _DirtyEditing();
 }
-
-// class _Valid<E extends Object> extends FormModelStatus<E> {
-//   const _Valid();
-// }
 
 class FailureFormModelStatus<E extends Object> extends FormModelStatus<E> {
   const FailureFormModelStatus(this.errors);

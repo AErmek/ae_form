@@ -23,13 +23,13 @@ final class RegisterConfirmPasswordValidatorSet extends FormModelValidatorSet<St
 }
 
 final class RequiredValidator implements IFormModelValidator<String, FormInputError> {
-  RequiredValidator({this.isCritical = true, this.level = ValidateLevel.any});
+  RequiredValidator({this.isCritical = true, this.level = ValidationLevel.onAny});
 
   @override
   final bool isCritical;
 
   @override
-  final ValidateLevel level;
+  final ValidationLevel level;
 
   @override
   FormInputError? validate(String value) {
@@ -38,7 +38,7 @@ final class RequiredValidator implements IFormModelValidator<String, FormInputEr
 }
 
 final class SameValueValidator implements IFormModelValidator<String, FormInputError> {
-  SameValueValidator({this.isCritical = true, required this.originValueGetter, this.level = ValidateLevel.onSubmit});
+  SameValueValidator({this.isCritical = true, required this.originValueGetter, this.level = ValidationLevel.onSubmit});
 
   final String Function() originValueGetter;
 
@@ -46,7 +46,7 @@ final class SameValueValidator implements IFormModelValidator<String, FormInputE
   final bool isCritical;
 
   @override
-  final ValidateLevel level;
+  final ValidationLevel level;
 
   @override
   FormInputError? validate(String value) {

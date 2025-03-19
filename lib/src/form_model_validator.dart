@@ -2,8 +2,18 @@ import 'package:ae_form/ae_form.dart';
 
 abstract interface class IFormModelValidator<T extends Object?, E extends Object> {
   E? validate(T value);
+
+  /// Indicates whether the validator is critical.
+  ///
+  /// A critical validator will stop further validation if it produces an error.
   bool get isCritical;
-  ValidateLevel get level;
+
+  /// The level of validation.
+  ///
+  /// It defines which triggers are applicable to the validator.
+  /// The validator will only be executed if the trigger matches one of the triggers
+  /// defined in the [ValidationLevel].
+  ValidationLevel get level;
 }
 
 extension IFormModelValidatorX<T extends Object?, E extends Object> on IFormModelValidator<T, E> {
@@ -30,6 +40,15 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
       }
     }
   }
+}
+
+final class SingleValidatorSet<T extends Object?, E extends Object> extends FormModelValidatorSet<T, E> {
+  final IFormModelValidator<T, E> validator;
+
+  SingleValidatorSet(this.validator);
+
+  @override
+  List<IFormModelValidator<T, E>> get validators => [validator];
 }
 
 //TODO FEATURE

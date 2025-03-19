@@ -1,8 +1,7 @@
 import 'package:ae_form/ae_form.dart';
 
 typedef FormInputError = FormModelError;
-typedef FormInput<T extends Object> = FormModel<T, FormInputError>;
-typedef NullableFormInput<T extends Object> = NullableFormModel<T, FormInputError>;
+typedef FormInput<T extends Object?> = FormModel<T, FormInputError>;
 
 extension FormInputX on FormInput {
   String? get errorMessage => switch (status) {
@@ -11,7 +10,7 @@ extension FormInputX on FormInput {
   };
 }
 
-extension FormModelErrorListX on Iterable<FormModelError> {
+extension FormInputErrorListX on Iterable<FormInputError> {
   String? get message =>
       isEmpty
           ? null
