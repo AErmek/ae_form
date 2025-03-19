@@ -77,17 +77,17 @@ extension BaseFormModelX<T extends Object?, TChild extends BaseFormModel<T, TChi
   TChild validateSet(IFormModelValidatorSet<T, E> validatorSet, {ValidateTrigger trigger = ValidateTrigger.submit}) {
     final errors = validatorSet.validate(value, trigger: trigger);
 
-    return copyWith(status: errors.isEmpty ? FormModelStatus<E>.valid() : FormModelStatus<E>.failures(errors));
+    return copyWith(status: errors.isEmpty ? null : FormModelStatus<E>.failures(errors));
   }
 
   TChild validate(IFormModelValidator<T, E> validator, {ValidateTrigger trigger = ValidateTrigger.submit}) {
-    final error = !validator.level.supportTrigger(trigger) ? null : validator.validate(value);
+    final error = validator.validateWithTrigger(value, trigger);
 
-    return copyWith(status: error == null ? FormModelStatus<E>.valid() : FormModelStatus<E>.failure(error));
+    return copyWith(status: error == null ? null : FormModelStatus<E>.failure(error));
   }
 
-  TChild validateFromResult(E? error) {
-    return copyWith(status: error == null ? FormModelStatus<E>.valid() : FormModelStatus<E>.failure(error));
+  TChild setResult(E? error, {FormModelStatus<E>? elseStatus}) {
+    return copyWith(status: error == null ? elseStatus : FormModelStatus<E>.failure(error));
   }
 }
 

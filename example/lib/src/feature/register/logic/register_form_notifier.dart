@@ -26,7 +26,7 @@ class RegisterFormNotifier extends ChangeNotifier {
 
     print(username.status);
 
-    if (!username.status.isValid) {
+    if (username.status.isFailure) {
       return;
     }
 
@@ -36,8 +36,9 @@ class RegisterFormNotifier extends ChangeNotifier {
 
     await Future.delayed(Duration(milliseconds: 300));
 
-    username = username.validateFromResult(
+    username = username.setResult(
       username.value == 'user' ? FormModelError.string('$value already exists') : null,
+      elseStatus: FormModelStatus.dirty(),
     );
 
     notifyListeners();

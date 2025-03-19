@@ -6,6 +6,10 @@ abstract interface class IFormModelValidator<T extends Object?, E extends Object
   ValidateLevel get level;
 }
 
+extension IFormModelValidatorX<T extends Object?, E extends Object> on IFormModelValidator<T, E> {
+  E? validateWithTrigger(T value, ValidateTrigger trigger) => !level.supportTrigger(trigger) ? null : validate(value);
+}
+
 abstract interface class IFormModelValidatorSet<T extends Object?, E extends Object> {
   Iterable<E> validate(T value, {required ValidateTrigger trigger});
 }
@@ -16,11 +20,7 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
   @override
   Iterable<E> validate(T value, {required ValidateTrigger trigger}) sync* {
     for (var validator in validators) {
-      if (!validator.level.supportTrigger(trigger)) {
-        continue;
-      }
-
-      final error = validator.validate(value);
+      final error = validator.validateWithTrigger(value, trigger);
       if (error != null) {
         yield error;
 

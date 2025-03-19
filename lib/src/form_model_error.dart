@@ -1,15 +1,15 @@
 import 'package:collection/collection.dart';
 
 sealed class FormModelError {
+  const FormModelError();
+
   const factory FormModelError.localized({required String key, Map<String, dynamic> arguments}) =
       LocalizedFormModelError;
   const factory FormModelError.string(String message) = StringFormModelError;
-  const factory FormModelError.any(Object data) = AnyFormModelError;
-
-  bool equals(FormModelError other);
+  const factory FormModelError.object(Object data) = ObjectFormModelError;
 }
 
-class LocalizedFormModelError implements FormModelError {
+class LocalizedFormModelError extends FormModelError {
   final String key;
   final Map<String, dynamic> arguments;
 
@@ -22,12 +22,9 @@ class LocalizedFormModelError implements FormModelError {
 
   @override
   int get hashCode => Object.hash(key, const MapEquality().hash(arguments));
-
-  @override
-  bool equals(FormModelError other) => this == other;
 }
 
-class StringFormModelError implements FormModelError {
+class StringFormModelError extends FormModelError {
   final String message;
 
   const StringFormModelError(this.message);
@@ -38,23 +35,17 @@ class StringFormModelError implements FormModelError {
 
   @override
   int get hashCode => message.hashCode;
-
-  @override
-  bool equals(FormModelError other) => this == other;
 }
 
-class AnyFormModelError implements FormModelError {
+class ObjectFormModelError extends FormModelError {
   final Object data;
 
-  const AnyFormModelError(this.data);
+  const ObjectFormModelError(this.data);
 
   @override
-  bool operator ==(Object other) => identical(this, other) || (other is AnyFormModelError && data == other.data);
+  bool operator ==(Object other) => identical(this, other) || (other is ObjectFormModelError && data == other.data);
 
   //TODO may be fix then
   @override
   int get hashCode => data.hashCode;
-
-  @override
-  bool equals(FormModelError other) => this == other;
 }

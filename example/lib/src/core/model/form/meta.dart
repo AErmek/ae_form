@@ -12,13 +12,16 @@ extension FormInputX on FormInput {
 }
 
 extension FormModelErrorListX on Iterable<FormModelError> {
-  String? get message => map(
-    (e) => switch (e) {
-      LocalizedFormModelError(key: final key, arguments: final arguments) => localizedMessage(key, arguments),
-      StringFormModelError(message: final message) => message,
-      AnyFormModelError(data: final data) => data.toString(),
-    },
-  ).join(';');
+  String? get message =>
+      isEmpty
+          ? null
+          : map(
+            (e) => switch (e) {
+              LocalizedFormModelError(key: final key, arguments: final arguments) => localizedMessage(key, arguments),
+              StringFormModelError(message: final message) => message,
+              ObjectFormModelError(data: final data) => data.toString(),
+            },
+          ).join(';');
 
   //TODO logic of localization
   String localizedMessage(String key, Map<String, dynamic> arguments) => key;
