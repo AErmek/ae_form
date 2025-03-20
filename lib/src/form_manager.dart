@@ -16,31 +16,35 @@ abstract base class FormManager<TCaller extends Object, E extends Object> {
   // ignore: use_setters_to_change_properties
   void setCaller(TCaller Function() delegate) => getCaller = delegate;
 
-  bool validateInputs(List<FormModel<Object?, E>> inputs, {ValidateTrigger trigger = ValidateTrigger.onSubmit}) {
-    var isValid = true;
-    final newInputs = <FormModel<Object?, E>>[];
-    for (final e in inputs) {
-      final validator = validators[e.key.validatorKey];
+  bool validateInputs(
+    List<FormModel<Object?, E>> inputs, {
+    ValidateTrigger trigger = ValidateTrigger.onSubmit,
+  }) {
+    var isAllValid = true;
+    final updatedInputs = <FormModel<Object?, E>>[];
+
+    for (final input in inputs) {
+      final validator = validators[input.key.validatorKey];
 
       if (validator == null) {
         continue;
       }
 
-      final newInput = e.reset(status: FormModelStatus.dirty()).validate(validator, trigger: trigger);
+      final validatedInput = input.reset(status: FormModelStatus.dirty()).validate(validator, trigger: trigger);
 
-      newInputs.add(newInput);
+      updatedInputs.add(validatedInput);
 
-      if (isValid && newInput.status.isFailure) {
-        isValid = false;
+      if (isAllValid && validatedInput.status.isFailure) {
+        isAllValid = false;
       }
     }
 
     final caller = getCaller?.call();
     if (caller != null) {
-      updateInputs(caller, newInputs);
+      updateInputs(caller, updatedInputs);
     }
 
-    return isValid;
+    return isAllValid;
   }
 
   FormModel<T, E>? toInput<T extends Object?>(FormModel<Object?, E> input) => input is FormModel<T, E> ? input : null;
@@ -50,7 +54,6 @@ abstract base class FormManager<TCaller extends Object, E extends Object> {
     required Future<List<E>> Function() asyncValidator,
   }) async {
     final caller = getCaller?.call();
-
     if (caller == null) return;
 
     updateInputs(caller, [input.reset(status: const FormModelStatus.dirtyEditing())]);
@@ -66,15 +69,13 @@ abstract base class FormManager<TCaller extends Object, E extends Object> {
     FormModelStatus<E>? okStatus,
   }) {
     final caller = getCaller?.call();
-
     if (caller == null) return;
 
     final validator = validators[input.key.validatorKey];
-
     if (validator == null) return;
 
-    final newInput = input.validate(validator, trigger: trigger);
+    final validatedInput = input.validate(validator, trigger: trigger);
 
-    updateInputs(caller, [newInput]);
+    updateInputs(caller, [validatedInput]);
   }
 }
