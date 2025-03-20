@@ -1,29 +1,29 @@
 import 'package:ae_form/ae_form.dart';
 import 'package:example/src/core/model/form/meta.dart';
 
-final class RegisterUsernameValidatorSet extends FormModelValidatorSet<String, FormInputError> {
+final class RegisterUsernameValidator extends FormModelValidator<String, FormInputError> {
   @override
-  List<IFormModelValidator<String, FormInputError>> get validators => [RequiredValidator()];
+  List<IFormModelValidatorUnit<String, FormInputError>> get units => [RequiredValidatorUnit()];
 }
 
-final class RegisterPasswordValidatorSet extends FormModelValidatorSet<String, FormInputError> {
+final class RegisterPasswordValidator extends FormModelValidator<String, FormInputError> {
   @override
-  List<IFormModelValidator<String, FormInputError>> get validators => [RequiredValidator()];
+  List<IFormModelValidatorUnit<String, FormInputError>> get units => [RequiredValidatorUnit()];
 }
 
-final class RegisterConfirmPasswordValidatorSet extends FormModelValidatorSet<String, FormInputError> {
-  RegisterConfirmPasswordValidatorSet({required this.originValueGetter});
+final class RegisterConfirmPasswordValidator extends FormModelValidator<String, FormInputError> {
+  RegisterConfirmPasswordValidator({required this.originValueGetter});
   final String Function() originValueGetter;
 
   @override
-  List<IFormModelValidator<String, FormInputError>> get validators => [
-    RequiredValidator(),
-    SameValueValidator(originValueGetter: originValueGetter),
+  List<IFormModelValidatorUnit<String, FormInputError>> get units => [
+    RequiredValidatorUnit(),
+    SameValueValidatorUnit(originValueGetter: originValueGetter),
   ];
 }
 
-final class RequiredValidator implements IFormModelValidator<String, FormInputError> {
-  RequiredValidator({this.isCritical = true, this.level = ValidationLevel.onAny});
+final class RequiredValidatorUnit implements IFormModelValidatorUnit<String, FormInputError> {
+  RequiredValidatorUnit({this.isCritical = true, this.level = ValidationLevel.onAny});
 
   @override
   final bool isCritical;
@@ -35,8 +35,12 @@ final class RequiredValidator implements IFormModelValidator<String, FormInputEr
   FormInputError? validate(String value) => value.isEmpty ? const FormInputError.localized(key: 'required') : null;
 }
 
-final class SameValueValidator implements IFormModelValidator<String, FormInputError> {
-  SameValueValidator({required this.originValueGetter, this.isCritical = true, this.level = ValidationLevel.onSubmit});
+final class SameValueValidatorUnit implements IFormModelValidatorUnit<String, FormInputError> {
+  SameValueValidatorUnit({
+    required this.originValueGetter,
+    this.isCritical = true,
+    this.level = ValidationLevel.onSubmit,
+  });
 
   final String Function() originValueGetter;
 

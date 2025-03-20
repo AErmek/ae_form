@@ -1,6 +1,6 @@
 import 'package:ae_form/ae_form.dart';
 
-abstract interface class IFormModelValidator<T extends Object?, E extends Object> {
+abstract interface class IFormModelValidatorUnit<T extends Object?, E extends Object> {
   E? validate(T value);
 
   /// Indicates whether the validator is critical.
@@ -16,20 +16,20 @@ abstract interface class IFormModelValidator<T extends Object?, E extends Object
   ValidationLevel get level;
 }
 
-extension IFormModelValidatorX<T extends Object?, E extends Object> on IFormModelValidator<T, E> {
+extension IFormModelValidatorUnitX<T extends Object?, E extends Object> on IFormModelValidatorUnit<T, E> {
   E? validateWithTrigger(T value, ValidateTrigger trigger) => !level.supportTrigger(trigger) ? null : validate(value);
 }
 
-abstract interface class IFormModelValidatorSet<T extends Object?, E extends Object> {
+abstract interface class IFormModelValidator<T extends Object?, E extends Object> {
   Iterable<E> validate(T value, {required ValidateTrigger trigger});
 }
 
-abstract base class FormModelValidatorSet<T extends Object?, E extends Object> implements IFormModelValidatorSet<T, E> {
-  List<IFormModelValidator<T, E>> get validators;
+abstract base class FormModelValidator<T extends Object?, E extends Object> implements IFormModelValidator<T, E> {
+  List<IFormModelValidatorUnit<T, E>> get units;
 
   @override
   Iterable<E> validate(T value, {required ValidateTrigger trigger}) sync* {
-    for (final validator in validators) {
+    for (final validator in units) {
       final error = validator.validateWithTrigger(value, trigger);
       if (error != null) {
         yield error;
@@ -42,12 +42,13 @@ abstract base class FormModelValidatorSet<T extends Object?, E extends Object> i
   }
 }
 
-final class SingleValidatorSet<T extends Object?, E extends Object> extends FormModelValidatorSet<T, E> {
-  SingleValidatorSet(this.validator);
-  final IFormModelValidator<T, E> validator;
+final class SingleValidator<T extends Object?, E extends Object> extends FormModelValidator<T, E> {
+  SingleValidator(this.validator);
+
+  final IFormModelValidatorUnit<T, E> validator;
 
   @override
-  List<IFormModelValidator<T, E>> get validators => [validator];
+  List<IFormModelValidatorUnit<T, E>> get units => [validator];
 }
 
 //TODO FEATURE

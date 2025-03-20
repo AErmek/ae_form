@@ -3,40 +3,50 @@ import 'package:example/src/core/model/form/meta.dart';
 import 'package:example/src/feature/register/logic/validators.dart';
 import 'package:flutter/material.dart';
 
-class RegisterFormNotifier extends ChangeNotifier {
+final class RegisterFormManager extends FormManager<RegisterFormNotifier, FormModelError> {
+  @override
+  void updateInputs(RegisterFormNotifier caller, List<FormModel<Object?, FormModelError>> inputs) {
+    for (final input in inputs) {
+      switch (input.key.validatorKey) {
+        case 'username':
+          caller.username = toInput<String>(input) ?? caller.username;
+        case 'password':
+          caller.password = toInput<String>(input) ?? caller.password;
+        case 'confirmPassword':
+          caller.confirmPassword = toInput<String>(input) ?? caller.confirmPassword;
+      }
+    }
+
+    caller.mutate();
+  }
+}
+
+class RegisterFormNotifier extends SafeChangeNotifier {
   RegisterFormNotifier() {
-    username = const FormInput<String>('');
-    password = const FormInput<String>('');
-    confirmPassword = const FormInput<String>('');
-    _confirmPasswordValidator = RegisterConfirmPasswordValidatorSet(originValueGetter: () => password.value);
+    username = FormInput<String>(InputKey('username'), value: '');
+    password = FormInput<String>(InputKey('password'), value: '');
+    confirmPassword = FormInput<String>(InputKey('confirmPassword'), value: '');
+    formManager =
+        RegisterFormManager()
+          ..add(username.key, RegisterUsernameValidator())
+          ..add(password.key, RegisterPasswordValidator())
+          ..add(confirmPassword.key, RegisterConfirmPasswordValidator(originValueGetter: () => password.value))
+          ..setCaller(() => this);
   }
 
-  final _usernameValidator = RegisterUsernameValidatorSet();
-  final _passwordValidator = RegisterPasswordValidatorSet();
-  late final RegisterConfirmPasswordValidatorSet _confirmPasswordValidator;
-
+  late final RegisterFormManager formManager;
   late FormInput<String> username;
   late FormInput<String> password;
   late FormInput<String> confirmPassword;
 
   Future<void> setUsername(String value) async {
-    username = username.set(value).validate(_usernameValidator, trigger: ValidateTrigger.onChange);
-
-    notifyListeners();
+    formManager.validate(username.set(value), trigger: ValidateTrigger.onChange);
 
     if (username.status.isFailure) {
       return;
     }
 
-    username = username.reset(status: const FormModelStatus.dirtyEditing());
-
-    notifyListeners();
-
-    final rv = await _validateUserNameInApi(value);
-
-    username = username.validateResult(rv, okStatus: const FormModelStatus.dirty());
-
-    notifyListeners();
+    await formManager.validateAsync(username, asyncValidator: () => _validateUserNameInApi(value));
   }
 
   Future<List<FormModelError>> _validateUserNameInApi(String value) async {
@@ -45,21 +55,38 @@ class RegisterFormNotifier extends ChangeNotifier {
   }
 
   Future<void> setPassword(String value) async {
-    password = password.set(value).validate(_passwordValidator, trigger: ValidateTrigger.onChange);
     confirmPassword = confirmPassword.reset(status: const FormModelStatus.dirty());
-
-    notifyListeners();
+    formManager.validate(password.set(value), trigger: ValidateTrigger.onChange);
   }
 
   Future<void> setConfirmPassword(String value) async {
-    confirmPassword = confirmPassword.set(value).validate(_confirmPasswordValidator, trigger: ValidateTrigger.onChange);
-    notifyListeners();
+    formManager.validate(confirmPassword.set(value), trigger: ValidateTrigger.onChange);
   }
 
-  Future<void> confirm() async {
-    username = username.validate(_usernameValidator, trigger: ValidateTrigger.onSubmit);
-    password = password.validate(_passwordValidator, trigger: ValidateTrigger.onSubmit);
-    confirmPassword = confirmPassword.validate(_confirmPasswordValidator, trigger: ValidateTrigger.onSubmit);
+  Future<bool> confirm() async {
+    final rv = formManager.validateInputs([username, password, confirmPassword]);
+    return rv;
+  }
+}
+
+extension SafeChangeNotifierX on SafeChangeNotifier {
+  void mutate() {
     notifyListeners();
+  }
+}
+
+class SafeChangeNotifier extends ChangeNotifier {
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 }

@@ -1,7 +1,31 @@
 import 'package:ae_form/ae_form.dart';
 import 'package:flutter/foundation.dart';
 
+@immutable
+class InputKey {
+  factory InputKey(String key, [Object? uniqueKey]) => InputKey._(key, uniqueKey);
+
+  const InputKey._(this.validatorKey, this.uniqueKey);
+  final String validatorKey;
+  final Object? uniqueKey;
+
+  @override
+  int get hashCode => Object.hash(validatorKey, uniqueKey);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InputKey &&
+          runtimeType == other.runtimeType &&
+          validatorKey == other.validatorKey &&
+          uniqueKey == other.uniqueKey;
+
+  String get id => [validatorKey, uniqueKey].nonNulls.join('_');
+}
+
 abstract interface class IFormModel<T extends Object?, E extends Object> {
+  InputKey get key;
+
   T get value;
 
   FormModelStatus<E> get status;
@@ -13,7 +37,10 @@ abstract interface class IFormModel<T extends Object?, E extends Object> {
 
 @immutable
 class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E> {
-  const FormModel(T initialValue, {this.status = const FormModelStatus.pure()}) : value = initialValue;
+  const FormModel(this.key, {required this.value, this.status = const FormModelStatus.pure()});
+
+  @override
+  final InputKey key;
 
   @override
   final T value;
@@ -30,8 +57,11 @@ class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E>
       copyWith(status: status, value: () => value);
 
   @protected
-  FormModel<T, E> copyWith({ValueGetter<T>? value, FormModelStatus<E>? status}) =>
-      FormModel(value != null ? value() : this.value, status: status ?? this.status);
+  FormModel<T, E> copyWith({ValueGetter<T>? value, FormModelStatus<E>? status}) => FormModel(
+        this.key,
+        value: value != null ? value() : this.value,
+        status: status ?? this.status,
+      );
 
   @override
   int get hashCode => Object.hash(value, status);
@@ -39,16 +69,20 @@ class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E>
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other.runtimeType == runtimeType && other is FormModel<T, E> && other.value == value && other.status == status);
+      (other.runtimeType == runtimeType &&
+          other is FormModel<T, E> &&
+          other.key == key &&
+          other.value == value &&
+          other.status == status);
 }
 
 extension FormModelX<T extends Object?, E extends Object> on FormModel<T, E> {
   FormModel<T, E> validate(
-    IFormModelValidatorSet<T, E> validatorSet, {
+    IFormModelValidator<T, E> validator, {
     ValidateTrigger trigger = ValidateTrigger.onSubmit,
     FormModelStatus<E>? okStatus,
   }) {
-    final errors = validatorSet.validate(value, trigger: trigger);
+    final errors = validator.validate(value, trigger: trigger);
 
     return validateResult(errors, okStatus: okStatus);
   }

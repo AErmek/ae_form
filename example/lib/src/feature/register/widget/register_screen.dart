@@ -65,8 +65,16 @@ class _FormState extends State<_Form> {
           enabled: formNotifier.confirmPassword.status.isEnabled,
         ),
         OutlinedButton(
-          onPressed: () {
-            formNotifier.confirm();
+          onPressed: () async {
+            final rv = await formNotifier.confirm();
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(rv ? 'Success' : 'Error'),
+                backgroundColor: rv ? Colors.green : Colors.red,
+                duration: Durations.extralong4,
+              ),
+            );
           },
           child: const Text('Register'),
         ),
