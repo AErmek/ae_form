@@ -3,9 +3,9 @@ import 'package:example/src/core/model/form/meta.dart';
 import 'package:example/src/feature/register/logic/validators.dart';
 import 'package:flutter/material.dart';
 
-final class RegisterFormManager extends FormManager<RegisterFormNotifier, FormModelError> {
+final class RegisterFormManager extends FormManager<RegisterFormNotifier, FormInputError> {
   @override
-  void updateInputs(RegisterFormNotifier caller, List<FormModel<Object?, FormModelError>> inputs) {
+  void updateInputs(RegisterFormNotifier caller, List<FormInput<Object?>> inputs) {
     for (final input in inputs) {
       switch (input.key.validatorKey) {
         case 'username':
@@ -49,9 +49,9 @@ class RegisterFormNotifier extends SafeChangeNotifier {
     await formManager.validateAsync(username, asyncValidator: () => _validateUserNameInApi(value));
   }
 
-  Future<List<FormModelError>> _validateUserNameInApi(String value) async {
+  Future<List<FormInputError>> _validateUserNameInApi(String value) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
-    return username.value == 'user' ? [FormModelError.string('$value already exists')] : [];
+    return username.value == 'user' ? [FormInputError.string('$value already exists')] : [];
   }
 
   Future<void> setPassword(String value) async {

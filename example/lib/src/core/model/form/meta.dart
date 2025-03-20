@@ -2,6 +2,7 @@ import 'package:ae_form/ae_form.dart';
 
 typedef FormInputError = FormModelError;
 typedef FormInput<T extends Object?> = FormModel<T, FormInputError>;
+typedef InputKey = FormModelKey;
 
 extension FormInputX on FormInput {
   String? get errorMessage => switch (status) {

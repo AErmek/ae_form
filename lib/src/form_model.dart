@@ -2,10 +2,10 @@ import 'package:ae_form/ae_form.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class InputKey {
-  factory InputKey(String key, [Object? uniqueKey]) => InputKey._(key, uniqueKey);
+class FormModelKey {
+  factory FormModelKey(String key, [Object? uniqueKey]) => FormModelKey._(key, uniqueKey);
 
-  const InputKey._(this.validatorKey, this.uniqueKey);
+  const FormModelKey._(this.validatorKey, this.uniqueKey);
   final String validatorKey;
   final Object? uniqueKey;
 
@@ -15,7 +15,7 @@ class InputKey {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is InputKey &&
+      other is FormModelKey &&
           runtimeType == other.runtimeType &&
           validatorKey == other.validatorKey &&
           uniqueKey == other.uniqueKey;
@@ -24,7 +24,7 @@ class InputKey {
 }
 
 abstract interface class IFormModel<T extends Object?, E extends Object> {
-  InputKey get key;
+  FormModelKey get key;
 
   T get value;
 
@@ -40,7 +40,7 @@ class FormModel<T extends Object?, E extends Object> implements IFormModel<T, E>
   const FormModel(this.key, {required this.value, this.status = const FormModelStatus.pure()});
 
   @override
-  final InputKey key;
+  final FormModelKey key;
 
   @override
   final T value;

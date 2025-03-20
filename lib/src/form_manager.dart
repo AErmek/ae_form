@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 abstract base class FormManager<TCaller extends Object, E extends Object> {
   final Map<String, FormModelValidator<Object?, E>> validators = {};
 
-  void add(InputKey key, FormModelValidator<Object?, E> validators) => this.validators[key.validatorKey] = validators;
+  void add(FormModelKey key, FormModelValidator<Object?, E> validators) =>
+      this.validators[key.validatorKey] = validators;
 
   @protected
   TCaller Function()? getCaller;
